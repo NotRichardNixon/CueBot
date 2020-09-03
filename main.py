@@ -8,6 +8,8 @@ from datetime import datetime
 import asyncio
 import psutil
 from xkcd import *
+
+# ricahrd is dumb
  
 prefixes = ['x!', 'X!', 'sudo ', 'Sudo']
 bot = commands.Bot(command_prefix = prefixes, case_insensitive = True)
