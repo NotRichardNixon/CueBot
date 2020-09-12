@@ -2,13 +2,12 @@
 import discord
 from discord.ext import commands
 import random
-from threading import Thread
-from flask import Flask
 from datetime import datetime
 import asyncio
 import psutil
 from xkcd import *
 import os
+from keepAlive import keepAlive
 
 prefixes = ["x!", "X!", "sudo ", "Sudo "]
 bot = commands.Bot(command_prefix = prefixes, case_insensitive = True)
@@ -18,27 +17,20 @@ xkcdWebsiteURL = "https://xkcd.com/"
 CueBotTOPGGURL = "https://top.gg/NOT_PUBLISHED_YET"
 errorEmoji = "<:error:752370531440787477>"
 
-# bot keepAlive() script
-app = Flask("")
-@app.route("/")
-
-def home():
-	return(f"================================================================================= <br>Discord Bot Name: {bot.user.name} <br>Hosting Platform: Repl.it <br>Bot Developer: Not Richard Nixon#5937<br>=================================================================================")
- 
-def run():
-	app.run(host = "0.0.0.0", port = 8080)
- 
-def keepAlive():
-	t = Thread(target = run)
-	t.start()
-
 # bot on initialization
 @bot.event
 async def on_ready():
 	
 	bot.starttime = datetime.now()
 	await bot.change_presence(status = discord.Status.online, activity = discord.Activity(type = discord.ActivityType.watching, name = f"{len(bot.users)} Users | x!help"))
-	print(f"================================================================================= \nDiscord Bot Name: {bot.user.name} \nHosting Platform: Repl.it \nBot Developers: Not Richard Nixon#5937 and Harsh#1408 \n================================================================================= \n\nBOT CONSOLE LOG BELOW: \n")
+	print(f"""
+   _____           ____        _   
+  / ____|         |  _ \      | |  
+ | |    _   _  ___| |_) | ___ | |_ 
+ | |   | | | |/ _ \  _ < / _ \| __|
+ | |___| |_| |  __/ |_) | (_) | |_ 
+  \_____\__,_|\___|____/ \___/ \__|
+                                   \n\nBOT CONSOLE LOG BELOW: \n""")
 
 # on join server event
 @bot.event
@@ -91,8 +83,14 @@ async def xkcd(ctx, *, query = None):
 		rand = random.randint(1, latest)
 		com = Comic(rand)
 	
-		await ctx.send(embed = embed)
 	
+	elif query.lower().startswith("h"):
+		embed = discord.Embed(title = "XKCD Command Page", description = "`x!xkcd` (aliases: `comic`, `sudo`) \n\nUsage: \n`x!xkcd` returns the latest xkcd comic \n `x!xkcd 999` returns xkcd 999 \n`x!xkcd random` returns a random xkcd",color = 0xFFFFFE, timestamp = datetime.utcnow())
+		embed.set_author(name = bot.user.name, url = xkcdWebsiteURL, icon_url = bot.user.avatar_url)
+		embed.set_footer(text = f"Requested by {ctx.author}", icon_url = ctx.author.avatar_url)
+		embed.set_thumbnail(url = bot.user.avatar_url)
+		await ctx.send(embed = embed)
+
 	else:
 		await ctx.send(f"{errorEmoji} I didn't understand that \nUse `x!help` for help, or type `x!help xkcd` for help on this command")
 	
@@ -121,10 +119,17 @@ async def explain(ctx, *, query = None):
     except:
       await ctx.send(f"I couldn't find that. Make sure you give a number between 1 and {latest}")
 
-  elif query.lower():
+  elif query.lower().startswith("r"):
     rand = random.randint(1, latest)
     await ctx.send(f"Here is the explanation for a random comic, {rand} - \"{Comic(rand).getTitle()}\" \n{Comic(rand).getExplanation()}")
 	
+
+  elif query.lower().startswith("h"):
+    embed = discord.Embed(title = "EXPLAIN Command Page", description = "`x!explain` (aliases: `?`, `exp`) \n\nUsage: \n`x!explain` returns the latest xkcd explanation \n `x!explain 999` returns the explanation for xkcd 999 \n`x!explain random` returns an explanation for a random xkcd",color = 0xFFFFFE, timestamp = datetime.utcnow())
+    embed.set_author(name = bot.user.name, url = xkcdWebsiteURL, icon_url = bot.user.avatar_url)
+    embed.set_footer(text = f"Requested by {ctx.author}", icon_url = ctx.author.avatar_url)
+    embed.set_thumbnail(url = bot.user.avatar_url)
+
     await ctx.send(embed = embed)
 
   else:
@@ -151,6 +156,12 @@ async def link(ctx, *, query = None):
     rand = random.randint(1, latest)
     await ctx.send(f"Here is the link to a random comic, {rand} - \"{Comic(rand).getTitle()}\" \nhttps://www.xkcd.com/{rand}")
 	
+
+  elif query.lower().startswith("h"):
+    embed = discord.Embed(title = "LINK Command Page", description = "`x!link` (alias: `url`) \n\nUsage: \n`x!link` returns the latest xkcd link \n `x!link 999` returns the link to xkcd 999 \n`x!link random` returns a random xkcd link",color = 0xFFFFFE, timestamp = datetime.utcnow())
+    embed.set_author(name = bot.user.name, url = xkcdWebsiteURL, icon_url = bot.user.avatar_url)
+    embed.set_footer(text = f"Requested by {ctx.author}", icon_url = ctx.author.avatar_url)
+    embed.set_thumbnail(url = bot.user.avatar_url)
     await ctx.send(embed = embed)
 
   else:
@@ -175,7 +186,12 @@ async def whatif(ctx, *, query = None):
   elif query.lower().startswith("r"):
     rand = random.randint(1, latest)
     await ctx.send(f"Here is a random What If? article, {rand} - \"{getWhatIf(rand).getTitle()}\" \n{getWhatIf(rand).getLink()}")
-	
+
+  elif query.lower().startswith("h"):
+    embed = discord.Embed(title = "WHAT IF? Command Page", description = "`x!whatif` (alias: `wif`) \n\nUsage: \n`x!whatif` returns the latest What If? article \n `x!whatif 17` returns What If? #17 \n`x!whatif random` returns a random What If? article",color = 0xFFFFFE, timestamp = datetime.utcnow())
+    embed.set_author(name = bot.user.name, url = xkcdWebsiteURL, icon_url = bot.user.avatar_url)
+    embed.set_footer(text = f"Requested by {ctx.author}", icon_url = ctx.author.avatar_url)
+    embed.set_thumbnail(url = bot.user.avatar_url)
     await ctx.send(embed = embed)
 
   else:
@@ -210,8 +226,6 @@ async def help(ctx, *, query = None):
 		
 		embed.add_field(name = "Main Commands", value = "•  `x!xkcd` returns the latest xkcd comic \n• `x!xkcd 999` returns xkcd 999\n• `x!xkcd random` returns a random xkcd\n• `x!xkcd help` shows a help page\n\nTo get explanations, links, and What If? articles, just replace `xkcd` with `exp`, `link`, or `whatif`.", inline = False)
 
-
-		"""embed.add_field(name = "Comic Related Stuff", value = "The structure of a command is `x!<type> <argument>`. \n\n**Command Types:** \n`x!xkcd` (or `comic`) \nreturns an xkcd comic \n`x!explain` (`?`, `exp`) \nreturns a link to the [explain xkcd wiki](https://www.explainxkcd.com/wiki/index.php/Main_Page) \n`x!link` (`url`)\nreturns a link to the [xkcd](https://xkcd.com/) site \n`x!whatif` (`wif`)\nreturns a link to a [What If?](https://what-if.xkcd.com/) article \n\n**Command Arguments:** \n•  `x!xkcd` (no argument) \nreturns the latest xkcd comic \n• `x!xkcd 999` \nreturns xkcd 999.\n• `x!xkcd random` \nreturns a random xkcd \n\nAll 3 arguments - empty, number, and random - work with the 4 command types above, giving 12 unique xkcd-related commands \nType `x!help <type>` for more info on the specific types and arguments", inline = False)"""
 
 		embed.add_field(name = "Other Stuff", value = "`x!help` (`x!info`)\nreturns this page \n`x!botinfo` (`x!binfo`)\nreturns info about the bot\n`x!ping` (`x!latency`)\nreturns the bot's latency and other statistics\n\n P.S. You can also write `sudo ` in place of `x!`", inline = False)
 
